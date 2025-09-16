@@ -14,25 +14,31 @@ type DaySteps struct {
 	// TODO: добавить поля
 	Steps    int
 	Duration time.Duration
-	Personal personaldata.Personal
+	personaldata.Personal
 }
 
 func (ds *DaySteps) Parse(datastring string) (err error) {
 	// TODO: реализовать функцию
 	dataStorage := strings.Split(datastring, ",")
 	if len(dataStorage) != 2 {
-		return fmt.Errorf("incorrect data count, want: 2, have: %d", len(dataStorage))
+		return fmt.Errorf("incorrect data count")
 	}
 
 	steps, err := strconv.Atoi(dataStorage[0])
 	if err != nil {
 		return err
 	}
+	if steps <= 0 {
+		return fmt.Errorf("the number of steps cannot be negative or zero")
+	}
 	ds.Steps = steps
 
-	duration, err := time.ParseDuration(dataStorage[2])
+	duration, err := time.ParseDuration(dataStorage[1])
 	if err != nil {
 		return err
+	}
+	if duration <= 0 {
+		return fmt.Errorf("the duration cannot be negative or zero")
 	}
 	ds.Duration = duration
 
@@ -44,9 +50,7 @@ func (ds DaySteps) ActionInfo() (string, error) {
 	distance := spentenergy.Distance(ds.Steps, ds.Personal.Height)
 	calories, err := spentenergy.WalkingSpentCalories(ds.Steps, ds.Personal.Weight, ds.Personal.Height, ds.Duration)
 	if err != nil {
-		if err != nil {
-			return "", err
-		}
+		return "", err
 
 	}
 
